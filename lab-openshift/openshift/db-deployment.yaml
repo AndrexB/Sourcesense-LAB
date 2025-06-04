@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: db
+          image: centos/postgresql-12-centos7
+          env:
+            - name: POSTGRESQL_USER
+              value: labuser
+            - name: POSTGRESQL_PASSWORD
+              value: labpass
+            - name: POSTGRESQL_DATABASE
+              value: labdb
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/pgsql/data
+      volumes:
+        - name: db-data
+          emptyDir: {}

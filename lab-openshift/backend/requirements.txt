@@ -1,0 +1,8 @@
+Flask==2.3.3
+flask_jwt_extended==4.5.3
+flask_bcrypt==1.0.1
+flask_cors==4.0.0
+prometheus_flask_exporter==0.23.0
+psutil==5.9.8
+psycopg2-binary==2.9.9
+requests==2.31.0

@@ -1,0 +1,14 @@
+body {
+  background: linear-gradient(135deg, #07051a 0%, #4b006e 80%, #00e7ff 100%);
+  font-family: 'Orbitron', monospace;
+  color: #fff;
+  margin: 0;
+}
+.container { max-width: 950px; margin: 32px auto; padding: 28px 24px; border-radius: 22px; background: rgba(30,10,50,0.98); box-shadow: 0 0 60px #00fff988; }
+h1 { font-size: 2.3em; color: #fff; text-shadow: 0 0 16px #ff29e6, 0 0 24px #00fff9; margin-bottom: 22px;}
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;}
+.card { background: rgba(40,15,60,0.95); border: 2px solid #00fff9; border-radius: 18px; padding: 1.5em; min-height: 85px; box-shadow: 0 0 15px #ff29e655, 0 0 7px #00fff9; display: flex; flex-direction: column; justify-content: center;}
+.card span { color: #ff29e6; font-weight: bold; font-size: 1em; margin-bottom: 9px;}
+.cyber-btn { background: linear-gradient(90deg,#ff29e6,#00fff9,#370075 70%); border: none; color: #fff; font-size: 1.15em; padding: 0.7em 2.2em; border-radius: 40px; cursor: pointer; font-family: 'Orbitron', monospace; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 0 14px #ff29e6, 0 0 15px #00fff9; transition: box-shadow .2s;}
+.cyber-btn:hover { box-shadow: 0 0 35px #ff29e6, 0 0 35px #00fff9; }
+ul#last_logins {margin:12px 0 0 0; color:#fff; font-size:1em;}

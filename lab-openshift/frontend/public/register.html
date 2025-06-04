@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1128, initial-scale=1.0" />
+  <title>Registrazione - Baxter Lab</title>
+  <style>
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #07051a 0%, #4b006e 80%, #00e7ff 100%);
+      font-family: 'Orbitron', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      overflow: hidden;
+    }
+    .card {
+      background: rgba(20,10,45,0.91);
+      border: 2px solid #ff29e6;
+      box-shadow: 0 0 24px #ff29e6cc, 0 0 8px #00fff9;
+      border-radius: 18px;
+      padding: 2.2rem 2.8rem;
+      min-width: 340px;
+      z-index: 2;
+      margin-top: 2rem;
+    }
+    .card h1 {
+      color: #fff;
+      font-size: 2.1rem;
+      margin: 0 0 1.3rem 0;
+      text-shadow: 0 0 10px #ff29e6, 0 0 20px #00fff9;
+      letter-spacing: 2px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+    input {
+      background: #200f34;
+      border: 1.5px solid #ff29e6;
+      color: #fff;
+      padding: .8rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color .2s;
+      font-family: 'Orbitron', monospace;
+    }
+    input:focus {
+      border-color: #00fff9;
+    }
+    .cyber-btn {
+      background: linear-gradient(90deg,#ff29e6,#00fff9,#370075 70%);
+      border: none;
+      color: #fff;
+      font-size: 1.15rem;
+      padding: .9rem 2.7rem;
+      border-radius: 40px;
+      cursor: pointer;
+      font-family: 'Orbitron', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-shadow: 0 0 14px #ff29e6, 0 0 15px #00fff9;
+      transition: box-shadow .2s;
+    }
+    .cyber-btn:hover {
+      box-shadow: 0 0 35px #ff29e6, 0 0 35px #00fff9;
+    }
+    .login-link {
+      color: #00fff9;
+      margin-top: 1.3rem;
+      text-align: center;
+      display: block;
+      text-decoration: none;
+      font-size: .98rem;
+    }
+    .login-link:hover {
+      color: #ff29e6;
+      text-decoration: underline;
+    }
+    .error-message {
+      color: #ff29e6;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .g-recaptcha {
+      margin: 0.8rem auto 1.1rem auto;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script>
+    const backendUrl = "https://backend-sourcesense.apps-crc.testing"; // Cambia se serve
+
+    async function handleRegister(event) {
+      event.preventDefault();
+      document.getElementById('error').textContent = '';
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const password2 = document.getElementById('password2').value;
+      const recaptcha = grecaptcha.getResponse();
+      if (password !== password2) {
+        document.getElementById('error').textContent = "Le password non coincidono!";
+        return;
+      }
+      if (password.length < 8) {
+        document.getElementById('error').textContent = "La password deve essere di almeno 8 caratteri!";
+        return;
+      }
+      if (!recaptcha) {
+        document.getElementById('error').textContent = "Completa il CAPTCHA!";
+        return;
+      }
+      const res = await fetch(`${backendUrl}/api/register`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password, recaptcha}),
+        credentials: 'include'
+      });
+      if (res.ok) {
+        window.location.href = '/login.html';
+      } else {
+        const data = await res.json().catch(() => ({}));
+        document.getElementById('error').textContent = data.msg || "Errore nella registrazione!";
+        grecaptcha.reset();
+      }
+    }
+  </script>
+</head>
+<body>
+  <form class="card" onsubmit="handleRegister(event)">
+    <h1>Crea un Account</h1>
+    <div class="error-message" id="error"></div>
+    <div class="input-group">
+      <input type="text" id="username" placeholder="Username" autocomplete="username" required />
+      <input type="password" id="password" placeholder="Password (min 8 caratteri)" autocomplete="new-password" required minlength="8"/>
+      <input type="password" id="password2" placeholder="Ripeti Password" autocomplete="new-password" required minlength="8"/>
+    </div>
+    <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+    <button type="submit" class="cyber-btn">Registrati</button>
+    <a href="/login.html" class="login-link">Hai già un account? Accedi</a>
+  </form>
+</body>
+</html>

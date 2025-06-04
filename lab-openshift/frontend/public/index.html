@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1128, initial-scale=1.0" />
+  <title>Baxter Cyberpunk Lab</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #07051a 0%, #4b006e 80%, #00e7ff 100%);
+      position: relative;
+      overflow: hidden;
+      font-family: 'Orbitron', monospace;
+    }
+    body::after {
+      content: "";
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.17),
+        rgba(0,0,0,0.17) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      mix-blend-mode: soft-light;
+    }
+    .glitch {
+      font-size: 3.2rem;
+      color: #fff;
+      position: relative;
+      letter-spacing: 2px;
+      text-shadow:
+        0 0 8px #00fff9,
+        0 0 16px #ff29e6,
+        2px 2px 1px #fff;
+      animation: glitch 2s infinite linear alternate;
+      z-index: 2;
+    }
+    @keyframes glitch {
+      0% { text-shadow: 2px 0 #ff29e6, -2px 0 #00fff9; }
+      20% { text-shadow: -2px 2px #ff29e6, 2px -2px #00fff9; }
+      40% { text-shadow: 4px 0 #ff29e6, 0 4px #00fff9; }
+      60% { text-shadow: 0 0 #ff29e6, 0 0 #00fff9; }
+      80% { text-shadow: -4px 0 #ff29e6, 0 -4px #00fff9; }
+      100% { text-shadow: 2px 0 #ff29e6, -2px 0 #00fff9; }
+    }
+    .desc {
+      font-size: 1.25rem;
+      max-width: 580px;
+      color: #fff;
+      background: rgba(30,0,60,0.69);
+      padding: 1.2rem 2.2rem;
+      margin-bottom: 2.4rem;
+      margin-top: 1.2rem;
+      border: 2px solid #00fff9;
+      border-radius: 20px;
+      box-shadow: 0 0 25px #ff29e6cc, 0 0 14px #00fff9;
+      z-index: 2;
+      text-align: center;
+      backdrop-filter: blur(2px);
+    }
+    .cyber-btn {
+      background: linear-gradient(90deg,#ff29e6,#00fff9,#370075 70%);
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      padding: 1.2rem 3.2rem;
+      border-radius: 40px;
+      cursor: pointer;
+      font-family: 'Orbitron', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-shadow: 0 0 20px #ff29e6, 0 0 30px #00fff9;
+      transition: transform .14s, box-shadow .22s;
+      margin-top: 1rem;
+      z-index: 2;
+    }
+    .cyber-btn:hover {
+      transform: scale(1.07) rotate(-2deg);
+      box-shadow: 0 0 50px #ff29e6, 0 0 55px #00fff9;
+      background: linear-gradient(90deg,#00fff9,#ff29e6,#370075 70%);
+    }
+    .neon-bg {
+      position: fixed;
+      top: -100px; left: -100px;
+      width: 110vw; height: 110vh;
+      z-index: 1;
+      pointer-events: none;
+      filter: blur(36px) brightness(1.1);
+    }
+    .blob {
+      position: absolute;
+      border-radius: 40% 60% 70% 30%/60% 40% 60% 40%;
+      opacity: 0.36;
+      animation: moveBlob 8s infinite alternate ease-in-out;
+      mix-blend-mode: lighten;
+    }
+    .blob1 { background: #ff29e6; width: 44vw; height: 50vh; left: 0; top: 0; animation-delay: 0s;}
+    .blob2 { background: #00fff9; width: 50vw; height: 30vh; right: 0; bottom: 0; animation-delay: 3s;}
+    .blob3 { background: #28005f; width: 32vw; height: 35vh; left: 30vw; top: 60vh; animation-delay: 1.5s;}
+    @keyframes moveBlob {
+      0% { transform: scale(1) translateY(0) translateX(0);}
+      100% { transform: scale(1.25) translateY(-40px) translateX(40px);}
+    }
+  </style>
+</head>
+<body>
+  <div class="neon-bg">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+  </div>
+  <div class="glitch">Baxter's Cyberpunk Lab</div>
+  <div class="desc">
+    Sei nel cuore dell'hardcore DevOps!<br><br>
+    <span style="color:#ff29e6;">OpenShift</span> è il tuo playground,<br> i <span style="color:#00fff9;">container</span> la tua arma.<br>  
+    <br>
+    <span style="font-size:.9em; color:#ccc;">(solo per veri pionieri del cluster)</span>
+  </div>
+  <a href="/login.html">
+    <button class="cyber-btn">Login / Registrazione</button>
+  </a>
+</body>
+</html>

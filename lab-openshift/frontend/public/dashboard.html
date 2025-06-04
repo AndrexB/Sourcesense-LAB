@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lab Dashboard - Enterprise Edition</title>
+  <meta name="viewport" content="width=1128, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #07051a 0%, #4b006e 80%, #00e7ff 100%);
+      font-family: 'Orbitron', monospace;
+      color: #fff;
+      margin: 0;
+    }
+    .container { max-width: 1100px; margin: 32px auto; padding: 28px 24px; border-radius: 22px; background: rgba(30,10,50,0.98); box-shadow: 0 0 60px #00fff988; }
+    h1 { font-size: 2.3em; color: #fff; text-shadow: 0 0 16px #ff29e6, 0 0 24px #00fff9; margin-bottom: 22px;}
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;}
+    .card { background: rgba(40,15,60,0.95); border: 2px solid #00fff9; border-radius: 18px; padding: 1.5em; min-height: 85px; box-shadow: 0 0 15px #ff29e655, 0 0 7px #00fff9; display: flex; flex-direction: column; justify-content: center;}
+    .card span { color: #ff29e6; font-weight: bold; font-size: 1em; margin-bottom: 9px;}
+    .cyber-btn { background: linear-gradient(90deg,#ff29e6,#00fff9,#370075 70%); border: none; color: #fff; font-size: 1.15em; padding: 0.7em 2.2em; border-radius: 40px; cursor: pointer; font-family: 'Orbitron', monospace; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 0 14px #ff29e6, 0 0 15px #00fff9; transition: box-shadow .2s;}
+    .cyber-btn:hover { box-shadow: 0 0 35px #ff29e6, 0 0 35px #00fff9; }
+    ul#last_logins {margin:12px 0 0 0; color:#fff; font-size:1em;}
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Lab Dashboard - Enterprise Edition</h1>
+    <div class="grid">
+      <div class="card"><span>Utenti registrati</span><div id="user_count">--</div></div>
+      <div class="card"><span>Login oggi</span><div id="logins_today">--</div></div>
+      <div class="card"><span>CPU Backend</span><div id="cpu">--</div></div>
+      <div class="card"><span>RAM Backend</span><div id="ram">--</div></div>
+      <div class="card" style="grid-column: span 2;">
+        <canvas id="loginTrendChart" height="90"></canvas>
+      </div>
+      <div class="card" style="grid-column: span 2;">
+        <span>Nuovi utenti (ultimi 7 giorni)</span>
+        <canvas id="usersTrendChart" height="90"></canvas>
+      </div>
+      <div class="card"><span>Login Success Rate (24h)</span><div id="login_success_rate" style="font-size:2em;color:#00fff9;">-- %</div></div>
+      <div class="card"><span>Uptime</span><div id="uptime">--</div></div>
+      <div class="card"><span>Pods</span><div id="pods">--</div></div>
+      <div class="card"><span>Replicas</span><div id="replicas">--</div></div>
+    </div>
+    <div class="card" style="margin-top:2rem;">
+      <span>Ultimi Login</span>
+      <ul id="last_logins"></ul>
+    </div>
+    <div style="margin-top:1.5rem;text-align:right;">
+      <button class="cyber-btn" onclick="loadStats()">AGGIORNA</button>
+      <button class="cyber-btn" onclick="logout()">LOGOUT</button>
+    </div>
+  </div>
+  <script>
+const backendUrl = "https://backend-sourcesense.apps-crc.testing"; // Modifica se serve
+
+function formatUptime(sec) {
+  if (!sec) return "--";
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  return h + "h " + m + "m " + s + "s";
+}
+let loginChart, usersChart;
+async function loadStats() {
+  const res = await fetch(backendUrl + "/api/stats", {credentials:'include'});
+  if (!res.ok) { document.getElementById('user_count').textContent = "ERR"; return; }
+  const stats = await res.json();
+  document.getElementById('user_count').textContent = stats.user_count ?? "--";
+  document.getElementById('logins_today').textContent = stats.logins_today ?? "--";
+  document.getElementById('cpu').textContent = (stats.cpu ? stats.cpu + "%" : "--");
+  document.getElementById('ram').textContent = (stats.ram ? stats.ram + "%" : "--");
+  document.getElementById('uptime').textContent = formatUptime(stats.uptime);
+  document.getElementById('pods').textContent = stats.pod_count ?? "--";
+  document.getElementById('replicas').textContent = stats.replica_count ?? "--";
+  document.getElementById('login_success_rate').textContent = (stats.login_success_rate ?? "--") + " %";
+  // Ultimi login
+  let ul = document.getElementById('last_logins');
+  ul.innerHTML = "";
+  (stats.last_logins || []).forEach(e => {
+    let li = document.createElement('li');
+    li.textContent = `${e.username}   ${e.ts}`;
+    ul.appendChild(li);
+  });
+  // Trend login (line)
+  const loginTrend = stats.login_trend || [];
+  if (!loginChart) {
+    const ctx = document.getElementById('loginTrendChart').getContext('2d');
+    loginChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: loginTrend.map(e => e.day),
+        datasets: [{
+          label: 'Login 7gg',
+          data: loginTrend.map(e => e.count),
+          borderColor: '#00fff9',
+          backgroundColor: '#ff29e660',
+          tension: 0.4,
+          pointBackgroundColor: '#ff29e6',
+          pointBorderColor: '#00fff9',
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#4b006e' }, ticks: { color: '#fff' } },
+          y: { grid: { color: '#4b006e' }, ticks: { color: '#fff' }, beginAtZero: true }
+        }
+      }
+    });
+  } else {
+    loginChart.data.labels = loginTrend.map(e => e.day);
+    loginChart.data.datasets[0].data = loginTrend.map(e => e.count);
+    loginChart.update();
+  }
+  // Trend nuovi utenti (bar)
+  const usersTrend = stats.users_trend || [];
+  if (!usersChart) {
+    const ctxU = document.getElementById('usersTrendChart').getContext('2d');
+    usersChart = new Chart(ctxU, {
+      type: 'bar',
+      data: {
+        labels: usersTrend.map(e => e.day),
+        datasets: [{
+          label: 'Nuovi utenti 7gg',
+          data: usersTrend.map(e => e.count),
+          backgroundColor: '#ff29e680',
+          borderColor: '#00fff9',
+          borderWidth: 2,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#4b006e' }, ticks: { color: '#fff' } },
+          y: { grid: { color: '#4b006e' }, ticks: { color: '#fff' }, beginAtZero: true }
+        }
+      }
+    });
+  } else {
+    usersChart.data.labels = usersTrend.map(e => e.day);
+    usersChart.data.datasets[0].data = usersTrend.map(e => e.count);
+    usersChart.update();
+  }
+}
+loadStats();
+
+function logout() {
+  fetch(backendUrl + "/api/logout", {method:'POST', credentials:'include'})
+    .then(()=>window.location.href="/login.html");
+}
+  </script>
+</body>
+</html>
